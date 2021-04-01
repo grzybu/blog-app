@@ -1,0 +1,46 @@
+{
+    "name": "grzybu/blog-app",
+    "description": "Simple blog app",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Bartosz Grzyb",
+            "email": "grzybu@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Blog\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Blog\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpmd/phpmd": "*",
+        "phpstan/phpstan": "*",
+        "phpunit/phpunit": "*",
+        "squizlabs/php_codesniffer": "*"
+    },
+    "scripts": {
+        "check": [
+            "@test",
+            "@cs-check",
+            "@md-check",
+            "@phpstan-check"
+        ],
+        "test": "phpunit",
+        "test-coverage": "phpunit --colors=always --coverage-html test-reports/coverage",
+        "cs-check": "phpcs -n",
+        "md-check": "phpmd \"src\" xml phpmd.xml --suffixes php",
+        "phpstan-check":  "phpstan analyse -c phpstan.neon"
+    }
+}
