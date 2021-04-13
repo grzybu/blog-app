@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  gfgdb:
+    container_name: gfgdb
+    image: mysql:5.7.27
+    environment:
+      MYSQL_DATABASE: 'product'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '33066:3306'
+    expose:
+      - '3306'
+    volumes:
+      - gfgdb:/var/lib/mysql
+
+  gfgproduct:
+    container_name: gfgproduct
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8080:8080"
+    command: php -S 0.0.0.0:8080 -t public
+    depends_on:
+      - gfgdb
+    links:
+      - gfgdb
+    volumes:
+      - ../:/var/www/html
+
+volumes:
+  gfgdb:
