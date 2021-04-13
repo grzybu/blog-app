@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-class NewPostControllerTest extends TestCase
+class EditPostControllerTest extends TestCase
 {
     private MockObject $repository;
     /**
@@ -31,42 +31,62 @@ class NewPostControllerTest extends TestCase
 
     public function testNotAuthenticated(): void
     {
-        $controller = new NewPostController($this->repository, $this->environment, $this->authService);
+        $controller = new EditPostController($this->repository, $this->environment, $this->authService);
         $request = new Request();
 
         $response = $controller($request);
         $this->assertInstanceOf(RedirectResponse::class, $response);
     }
 
-    public function testShowNewPostForm(): void
+    public function testShowEditPostForm(): void
     {
-        $controller = new NewPostController($this->repository, $this->environment, $this->authService);
+        $controller = new EditPostController($this->repository, $this->environment, $this->authService);
         $this->authService->expects($this->once())
             ->method('isAuthenticated')
             ->willReturn(true);
 
-        $request = new Request();
+        $request = new Request(['id' => 1]);
 
         $this->environment->expects($this->once())
             ->method('render')
             ->withAnyParameters()
-            ->willReturn("<h3>New post form</h3><form></form>");
+            ->willReturn("<h3>Edit post form</h3><form></form>");
+
+        $this->repository->expects($this->once())
+            ->method('get')
+            ->willReturn(new Post());
 
         $response = $controller($request);
         $this->assertInstanceOf(Response::class, $response);
         $this->assertStringContainsString("<form>", $response->getContent());
     }
 
-    public function testAddNewPost(): void
+    public function testPostNotFound(): void
     {
-        $controller = new NewPostController($this->repository, $this->environment, $this->authService);
+        $controller = new EditPostController($this->repository, $this->environment, $this->authService);
+        $this->authService->expects($this->once())
+            ->method('isAuthenticated')
+            ->willReturn(true);
+
+        $request = new Request(['id' => 1]);
+
+        $this->repository->expects($this->once())
+            ->method('get')
+            ->willReturn(null);
+
+        $response = $controller($request);
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertStringContainsString("Post not found", $response->getContent());
+    }
+
+    public function testEditPost(): void
+    {
+        $controller = new EditPostController($this->repository, $this->environment, $this->authService);
         $userId = 1;
         $this->authService->expects($this->once())
             ->method('isAuthenticated')
             ->willReturn(true);
-        $this->authService->expects($this->once())
-            ->method('getUserId')
-            ->willReturn($userId);
 
         $id = 1;
         $data = [
@@ -75,32 +95,32 @@ class NewPostControllerTest extends TestCase
             'summary' => 'summary',
         ];
 
-        $post = (new Post())->fromArray(array_merge($data, ['user_id' => $userId, 'id' => $id]));
+        $post = (new Post())->fromArray(array_merge($data, ['user_id' => $userId]));
+
+        $this->repository->expects($this->once())
+            ->method('get')
+            ->with($id)
+            ->willReturn($post);
+
 
         $this->repository->expects($this->once())
             ->method('save')
             ->withAnyParameters()
             ->willReturn($post);
 
-        $request = new Request();
+        $request = new Request(['id' => $id]);
         $request->setMethod('POST');
         $request->request->add($data);
 
         $response = $controller($request);
-        $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertStringContainsString('/admin/post/' . $id, $response->getContent() );
+        $this->assertInstanceOf(Response::class, $response);
     }
 
-    public function testAddNewPostFailed(): void
+    public function testEditPostFailed(): void
     {
-        $controller = new NewPostController($this->repository, $this->environment, $this->authService);
-        $userId = 1;
         $this->authService->expects($this->once())
             ->method('isAuthenticated')
             ->willReturn(true);
-        $this->authService->expects($this->once())
-            ->method('getUserId')
-            ->willReturn($userId);
 
         $data = [
             'title'   => 'title',
@@ -109,11 +129,11 @@ class NewPostControllerTest extends TestCase
         ];
 
         $this->repository->expects($this->once())
-            ->method('save')
-            ->withAnyParameters()
-            ->willThrowException(new \Exception('DB Error'));
+            ->method('get')
+            ->with(1)
+            ->willReturn(new Post());
 
-        $request = new Request();
+        $request = new Request(['id' => 1]);
         $request->setMethod('POST');
         $request->request->add($data);
 
@@ -121,6 +141,12 @@ class NewPostControllerTest extends TestCase
             ->method('render')
             ->withAnyParameters()
             ->willReturn("<p>DB Error</p><form></form>");
+        $this->repository->expects($this->once())
+            ->method('save')
+            ->withAnyParameters()
+            ->willThrowException(new \Exception('DB Error'));
+
+        $controller = new EditPostController($this->repository, $this->environment, $this->authService);
 
         $response = $controller($request);
         $this->assertInstanceOf(Response::class, $response);
