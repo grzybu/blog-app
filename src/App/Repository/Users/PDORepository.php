@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Repository\Post;
+namespace App\Repository\Users;
 
-use App\Lib\DbConnection;
-use App\Lib\PDOConnection;
-use App\Model\Post;
+use App\Model\User;
 
-class DbRepository implements PostRepository
+class PDORepository implements UsersRepository
 {
     protected \PDO $connection;
 
@@ -15,65 +13,26 @@ class DbRepository implements PostRepository
         $this->connection = $connection;
     }
 
-    public function getAll(int $page = 1, int $limit = 2): array
+    public function getUserByUsername(string $username): ?User
     {
-        $offset = ($page > 0 ? $page - 1: 0) * $limit;
+        $query = $this->connection->prepare('SELECT * FROM `users` WHERE `username`=:username');
+        $query->bindParam("username", $username, \PDO::PARAM_STR);
+        $query->execute();
+        $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-        $query = 'SELECT * FROM `posts` ORDER BY `created_at` DESC ';
-        $query .= " LIMIT $offset, $limit";
-
-        $stmt = $this->connection->prepare($query);
-        $stmt->execute();
-
-        $posts = $stmt->fetchAll();
-
-        return $this->buildArray($posts);
-    }
-
-    public function get(int $id): ?Post
-    {
-        // TODO: Implement get() method.
-    }
-
-    public function getBySlug(string $slug): ?Post
-    {
-        $query = 'SELECT * FROM `posts` WHERE `slug` = ?';
-        $stmt = $this->connection->prepare($query);
-
-        $stmt->execute([$slug]);
-        $post = $stmt->fetch();
-
-        if (!$post) {
+        if (!$result) {
             return null;
         }
 
-        return new Post($post['slug'], $post['title'], $post['summary'], $post['body']);
+        return (new User())->fromArray($result);
     }
 
-    public function save(Post $post): ?Post
+    public function addUser(string $userName, string $passwordHash): bool
     {
-        // TODO: Implement save() method.
-    }
-
-    private function buildArray(array $statementResults): array
-    {
-        return array_map(
-            fn($result) => new Post(
-                $result['slug'],
-                $result['title'],
-                $result['summary'],
-                $result['body']
-            ),
-            $statementResults
-        );
-    }
-
-    public function getTotal(): int
-    {
-        $query = 'SELECT count(*) as `total` FROM `posts`';
-        $stmt = $this->connection->prepare($query);
-        $stmt->execute();
-
-        return $stmt->fetchColumn() ?: 0;
+        $query = $this->connection->prepare('INSERT INTO `users` (`username`, `password` ) VALUES (:username, :password)');
+        $query->bindValue('username', $userName);
+        $query->bindValue('password', $passwordHash);
+        $query->execute();
+        return $this->connection->lastInsertId() > 0;
     }
 }
