@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
+use function DI\value;
+
 class EditPostController
 {
     protected PostRepository $repository;
@@ -38,9 +40,7 @@ class EditPostController
 
         if ($request->getMethod() === Request::METHOD_POST) {
             $data = $request->request->all();
-
             $post->fromArray($data);
-
             try {
                 $post = $this->repository->save($post);
             } catch (\Exception $e) {

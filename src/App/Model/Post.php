@@ -106,12 +106,12 @@ class Post implements Model
     public function toArray(): array
     {
         return [
-            'id'         => $this->getId(),
-            'title'      => $this->getTitle(),
-            'slug'       => $this->getSlug(),
-            'body'       => $this->getBody(),
-            'summary'    => $this->getSummary(),
-            'user_id'    => $this->getUserId(),
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'slug' => $this->getSlug(),
+            'body' => $this->getBody(),
+            'summary' => $this->getSummary(),
+            'user_id' => $this->getUserId(),
             'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at' => $this->getUpdatedAt()->format('Y-m-d H:i:s'),
         ];
@@ -124,21 +124,24 @@ class Post implements Model
 
     public function fromArray(array $data): self
     {
-        $model =  (new Post())
-            ->setId($data['id'] ?? null)
-            ->setBody($data['body'] ?? null)
-            ->setSummary($data['summary'] ?? null)
-            ->setUserId($data['user_id'] ?? null)
-            ->setSlug($data['slug'] ?? null)
-            ->setTitle($data['title'] ?? null);
+        foreach ($data as $key => $value) {
+            $method = 'set' . ucfirst($key);
+            if (method_exists($this, $method)) {
+                $this->$method($value);
+            }
+        }
+
+        if (isset($data['user_id'])) {
+            $this->setUserId($data['user_id']);
+        }
 
         if (isset($data['updated_at'])) {
-            $model->setUpdatedAt((new \DateTimeImmutable())->setTimestamp(strtotime($data['updated_at'])));
+            $this->setUpdatedAt((new \DateTimeImmutable())->setTimestamp(strtotime($data['updated_at'])));
         }
         if (isset($data['created_at'])) {
-            $model->setCreatedAt((new \DateTimeImmutable())->setTimestamp(strtotime($data['created_at'])));
+            $this->setCreatedAt((new \DateTimeImmutable())->setTimestamp(strtotime($data['created_at'])));
         }
 
-        return $model;
+        return $this;
     }
 }
