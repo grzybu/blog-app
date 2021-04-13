@@ -1,23 +1,25 @@
 version: '3.3'
 
 services:
-  gfgdb:
-    container_name: gfgdb
+  blogdb:
+    container_name: blogdb
     image: mysql:5.7.27
     environment:
-      MYSQL_DATABASE: 'product'
+      MYSQL_DATABASE: 'blog'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      MYSQL_ROOT_PASSWORD: 'rootpasswd'
+      MYSQL_ROOT_HOST: '%'
     ports:
       - '33066:3306'
     expose:
       - '3306'
     volumes:
-      - gfgdb:/var/lib/mysql
+      - blogdb:/var/lib/mysql
 
-  gfgproduct:
-    container_name: gfgproduct
+  blogapp:
+    container_name: blogapp
     build:
       context: ../
       dockerfile: ./docker/Dockerfile
@@ -25,11 +27,11 @@ services:
       - "8080:8080"
     command: php -S 0.0.0.0:8080 -t public
     depends_on:
-      - gfgdb
+      - blogdb
     links:
-      - gfgdb
+      - blogdb
     volumes:
       - ../:/var/www/html
 
 volumes:
-  gfgdb:
+  blogdb:

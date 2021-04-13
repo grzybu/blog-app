@@ -1,40 +1,37 @@
-CREATE DATABASE IF NOT EXISTS `product`;
+CREATE DATABASE IF NOT EXISTS `blog`;
 
-USE `product`;
+USE `blog`;
 
-CREATE TABLE IF NOT EXISTS `product`
-(
-  `id_product` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name`       VARCHAR(200)     NOT NULL,
-  `brand`      VARCHAR(200)     NOT NULL,
-  `stock`      INT(10) DEFAULT 0,
-  `uuid`       VARCHAR(36)      NOT NULL,
-  PRIMARY KEY (`id_product`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET=utf8;
+CREATE TABLE `users` (
+                         `id` int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+                         `username` varchar(255) NOT NULL,
+                          `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO product (id_product, name, brand, stock, uuid) VALUES
-(1, 'Raja', 'RJ', 100, '94d89f13-14a1-32eb-8584-0242ac130002'),
-(2, 'Pure Linen Plain Shirt', 'ShirtsCo', 44, '94d8899e-14a1-11eb-8584-0242ac130002'),
-(3, 'Long Sleeve Nursing Tops', 'ShirtsCo', 12, '94d88c55-14a1-11eb-8584-0242ac130002'),
-(4, 'Christian Dior Pure Poison Eau De Parfum Spray', 'Christian Dior', 1031, '94d88e75-14a1-11eb-8584-0242ac130002'),
-(5, 'Speed TR Flexweave Shoes', 'Flexweave', 1300, '94d88fda-14a1-11eb-8584-0242ac130002'),
-(6, 'Berlin New Shirt', 'ShirtsCo', 2100, '94d89121-14a1-11eb-8584-0242ac130002'),
-(7, '2 Pack Bikini Brief', 'ShirtsCo', 3200, '94d8924f-14a1-11eb-8584-0242ac130002'),
-(8, 'Organic Moisturizing Lip Balm', 'Organic', 10, '94d89374-14a1-11eb-8584-0242ac130002'),
-(9, 'Combi Leather Sandals', 'ShoesCo', 1100, '94d894b4-14a1-11eb-8584-0242ac130002'),
-(10, 'Sasha', 'Sasha', 120, '94d896d9-14a1-11eb-8584-0242ac130002'),
-(11, 'Womens Bella Surfing Maxi Tank Dress', 'ShirtsCo', 2100, '94d899b5-14a1-11eb-8584-0242ac130002'),
-(12, 'Plano Tee', 'TeeCo', 10, '94d89b5a-14a1-11eb-8584-0242ac130002'),
-(13, 'Solid Cross Back Bikini Top', 'ShirtsCo', 120, '94d89ca1-14a1-11eb-8584-0242ac130002'),
-(14, 'Ottana Sweater', 'Ottana', 3200, '94d89dda-14a1-11eb-8584-0242ac130002'),
-(15, 'Brushed Herringbone Pant With Tape Detail In Loose Tapered Fit', 'Ottana', 100, '94d89f13-14a1-11eb-8584-0242ac130002'),
-(16, 'Mina', 'Mina', 321, '94d8a04a-14a1-11eb-8584-0242ac130002'),
-(17, 'Claire Top', 'Claire', 1321, '94d8a17e-14a1-11eb-8584-0242ac130002'),
-(18, 'Calvin Klein Fully Delicious Sheer Plumping Lip Gloss', 'Calvin Klein', 132, '94d8a2d3-14a1-11eb-8584-0242ac130002'),
-(19, 'Shara Shara White Stem Sleeping Mask', 'Shara Shara', 1021, '94d8a413-14a1-11eb-8584-0242ac130002'),
-(20, 'Classy & Fabulous Coat', 'ShirtsCo', 1332, '94d8a547-14a1-11eb-8584-0242ac130002'),
-(21, 'Black Cherry Dress', 'ShirtsCo', 11, '94d8a67d-14a1-11eb-8584-0242ac130002'),
-(22, 'Storm Jacket', 'ShirtsCo', 145, '94d8a7aa-14a1-11eb-8584-0242ac130002'),
-(23, 'Sweet Daisy Top', 'ShirtsCo', 14400, '94d8a8d9-14a1-11eb-8584-0242ac130002');
+CREATE TABLE `posts` (
+                         `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                         `user_id` int(11) DEFAULT NULL,
+                         `title` varchar(255) NOT NULL,
+                         `summary` varchar(255) NOT NULL,
+                         `slug` varchar(255) NOT NULL UNIQUE,
+                         `body` text NOT NULL,
+                         `created_at` timestamp DEFAULT NULL,
+                         `updated_at` timestamp DEFAULT NULL,
+                         FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO blog.users (username,password) VALUES
+('admin','$2y$12$KwxRQ6PRwfH68dWojvNEHusbjQudDswBelFwwEIuVo3JHyxh.F4Z6');
+
+
+INSERT INTO blog.posts (user_id,title,summary,slug,body,created_at,updated_at) VALUES
+(1,'First post','Summary of post','first-post','Fist post body','2021-04-06 09:06:56','2021-04-08 21:06:06'),
+(1,'Cras vitae mollis nisl. Duis. ','Morbi tempus pharetra ligula sed lacinia. Sed et consectetur sapien. Suspendisse ut rhoncus lacusdddd','cras-vitae-mollis-nisl-duis','Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. ','2021-04-06 09:16:39','2021-04-13 18:32:32'),
+(1,'Nullam vitae neque quis turpis consequat gravida.','Fusce eget dolor ut enim sagittis maximus vel vel neque. Maecenas iaculis leo tellus, id laoreet ante fringilla ac. Nullam. ','nullam-vitae-neque-quis-turpis-consequat-gravida','Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. ','2021-04-06 09:16:39','2021-04-13 19:59:19'),
+(1,'Nullam fermentum nisi non faucibus dignissim.','Etiam eu est fermentum, tristique mi sed, congue mauris. In hac habitasse platea dictumst. Sed eu eros facilisis dolor dictum. ','nullam-fermentum-nisi-non-faucibus-dignissim','Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. ','2021-04-06 09:16:39','2021-04-08 21:06:23'),
+(1,'In id massa laoreet, ultricies lorem a, accumsan risus.','Duis mi erat, pharetra eget suscipit a, venenatis et diam. Vivamus sed fermentum dolor. Nullam vitae dui tincidunt, tincidunt leo. ','in-id-massa-laoreet-ultricies-lorem-a-accumsan-risus','Proin id tellus odio. Aenean ornare ultricies auctor. Nullam luctus velit sed auctor molestie. Vivamus vitae mauris convallis, cursus velit at, suscipit lectus. Donec iaculis est eget odio pharetra auctor. Praesent vitae libero mollis, placerat est sit amet, porta mi. Phasellus porta nisl et libero dignissim gravida vel eget justo. ','2021-04-06 09:16:39','2021-04-13 18:34:49'),
+(1,'Add post test ','Test if we can add post','add-post-test','Post body','2021-04-12 18:50:18','2021-04-12 18:50:18'),
+(1,'test post','summary','test-post','test post body','2021-04-13 12:14:09','2021-04-13 12:14:09'),
+(1,'Primum in nostrane potestate est, quid meminerimus?','Negat esse eam, inquit, propter se expetendam.','primum-in-nostrane-potestate-est-quid-meminerimus','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Omne enim animal, simul et ortum est, se ipsum et omnes partes suas diligit duasque, quae maximae sunt, in primis amplectitur, animum et corpus, deinde utriusque partes. Quoniam igitur, ut medicina valitudinis, navigationis gubernatio, sic vivendi ars est prudente, necesse est eam quoque ab aliqua re esse constitutam et profectam. Aliis esse maiora, illud dubium, ad id, quod summum bonum dicitis, ecquaenam possit fieri accessio. Duo Reges: constructio interrete. Quid tibi, Torquate, quid huic Triario litterae, quid historiae cognitioque rerum, quid poetarum evolutio, quid tanta tot versuum memoria voluptatis affert? Qualis est igitur omnis haec, quam dico, conspiratio consensusque virtutum, tale est illud ipsum honestum, quandoquidem honestum aut ipsa virtus est aut res gesta virtute; Gracchum patrem non beatiorem fuisse quam fillum, cum alter stabilire rem publicam studuerit, alter evertere. Pungunt quasi aculeis interrogatiunculis angustis, quibus etiam qui assentiuntur nihil commutantur animo et idem abeunt, qui venerant. Obscura, inquit, quaedam esse confiteor, nec tamen ab illis ita dicuntur de industria, sed inest in rebus ipsis obscuritas. Praeterea et appetendi et refugiendi et omnino rerum gerendarum initia proficiscuntur aut a voluptate aut a dolore. Itaque non ob ea solum incommoda, quae eveniunt inprobis, fugiendam inprobitatem putamus, sed multo etiam magis, quod, cuius in animo versatur, numquam sinit eum respirare, numquam adquiescere. Portenta haec esse dicit, neque ea ratione ullo modo posse vivi; Idque quo magis quidam ita faciunt, ut iure etiam reprehendantur, hoc magis intellegendum est haec ipsa nimia in quibusdam futura non fuisse, nisi quaedam essent modica natura. Aristoteles, Xenocrates, tota illa familia non dabit, quippe qui valitudinem, vires, divitias, gloriam, multa alia bona esse dicant, laudabilia non dicant. Ut iam liceat una comprehensione omnia complecti non dubitantemque dicere omnem naturam esse servatricem sui idque habere propositum quasi finem et extremum, se ut custodiat quam in optimo sui generis statu; ','2021-04-13 12:14:09','2021-04-13 18:33:28'),
+(1,'Cur post Tarentum ad Archytam?','Quid est igitur, inquit, quod requiras?','cur-post-tarentum-ad-archytam','Quasi vero hoc didicisset a Zenone, non dolere, cum doleret! Illud audierat nec tamen didicerat, malum illud non esse, quia turpe non esset, et esse ferendum viro. Ita enim parvae et exiguae sunt istae accessiones bonorum, ut, quem ad modum stellae in radiis solis, sic istae in virtutum splendore ne cernantur quidem. Qui mos cum a posterioribus non esset retentus, Arcesilas eum revocavit instituitque ut ii, qui se audire vellent, non de se quaererent, sed ipsi dicerent, quid sentirent; Cum enim superiores, e quibus planissime Polemo, secundum naturam vivere summum bonum esse dixissent, his verbis tria significari Stoici dicunt, unum eius modi, vivere adhibentem scientiam earum rerum, quae natura evenirent. Quos qui tollunt et nihil posse percipi dicunt, ii remotis sensibus ne id ipsum quidem expedire possunt, quod disserunt. Quod maxime efficit Theophrasti de beata vita liber, in quo multum admodum fortunae datur. Varietates autem iniurasque fortunae facile veteres philosophorum praeceptis instituta vita superabat. Tantus est igitur innatus in nobis cognitionis amor et scientiae, ut nemo dubitare possit quin ad eas res hominum natura nullo emolumento invitata rapiatur. ','2021-04-13 12:14:09','2021-04-13 18:34:21'),
+(1,'De hominibus dici non necesse est.','Etiam beatissimum? Si enim ad populum me vocas, eum. Ut in geometria, prima si dederis, danda sunt omnia. Res enim concurrent contrariae. At, si voluptas esset bonum, desideraret. Cur post Tarentum ad Archytam? Sint ista Graecorum; ','de-hominibus-dici-non-necesse-est','Nam libero tempore, cum soluta nobis est eligendi optio, cumque nihil impedit, quo minus id, quod maxime placeat, facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Ampulla enim sit necne sit, quis non iure optimo irrideatur, si laboret? Negarine ullo modo possit numquam quemquam stabili et firmo et magno animo, quem fortem virum dicimus, effici posse, nisi constitutum sit non esse malum dolorem? Itaque prima illa commendatio, quae a natura nostri facta est nobis, incerta et obscura est, primusque appetitus ille animi tantum agit, ut salvi atque integri esse possimus. Iam quae corporis sunt, ea nec auctoritatem cum animi partibus, comparandam et cognitionem habent faciliorem. Ne vitationem quidem doloris ipsam per se quisquam in rebus expetendis putavit, nisi etiam evitare posset. Quid interest, nisi quod ego res notas notis verbis appello, illi nomina nova quaerunt, quibus idem dicant? Ita, quem ad modum in senatu semper est aliquis, qui interpretem postulet, sic, isti nobis cum interprete audiendi sunt. Scilicet vocabulis rerum mutatis inconstantiae crimen ille effugit, nos effugere non possumus! Ille Metelli vitam negat beatiorem quam Reguli, praeponendam tamen, nec magis expetendam, sed magis sumendam et, si optio esset, eligendam Metelli. Nam quod ita positum est, quod dissolutum sit, id esse sine sensu, id eius modi est, ut non satis plane dicat quid sit dissolutum. Quid, si etiam bestiae multa faciunt duce sua quaeque natura partim indulgenter vel cum labore, ut in gignendo, in educando, perfacile appareat aliud quiddam iis propositum, non voluptatem? An dubium est, quin virtus ita maximam partem optineat in rebus humanis, ut reliquas obruat? ','2021-04-13 12:14:09','2021-04-13 18:34:34');
