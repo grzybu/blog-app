@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Auth;
 
 use App\Service\AuthService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -12,6 +12,7 @@ class LoginController
 {
     protected Environment $twig;
     protected AuthService $authService;
+    protected ?string $returnTo = null;
 
     public function __construct(AuthService $authService, Environment $twig)
     {
@@ -22,23 +23,28 @@ class LoginController
     public function __invoke(Request $request): Response
     {
         if ($this->authService->isAuthenticated()) {
-            var_dump($this->authService->getIdentity());
-            exit;
+            return new RedirectResponse('/');
         }
 
+        if ($request->get('returnTo')) {
+            $this->returnTo = base64_decode($request->get('returnTo'));
+        }
+
+        $error = false;
         if ($request->getMethod() === Request::METHOD_POST) {
             $username = $request->get('username');
             $password = $request->get('password');
             $authenticated = $this->authService->authenticate($username, $password);
 
             if ($authenticated) {
-                return new RedirectResponse('/');
+                return new RedirectResponse($this->returnTo ?: '/');
             }
+
+            $error = true;
         }
 
-        $content = $this->twig->render('login.twig');
+
+        $content = $this->twig->render('login.twig', ['error' => $error]);
         return new Response($content);
     }
-
-
 }

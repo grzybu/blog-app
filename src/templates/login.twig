@@ -1,9 +1,19 @@
 {% extends "base.twig" %}
-{% block title %}{{ post.getTitle() }}{% endblock %}
-
 {% block content %}
-<h3>{{ post.getTitle() }}</h3>
-<p>
-    {{ post.getBody() }}
-</p>
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+           Login failed
+        </div>
+    {% endif %}
+    <form method="post">
+        <div class="form-group">
+            <label for="inputLogin">Login</label>
+            <input type="text" class="form-control" id="inputLogin" placeholder="Enter Login" name="username">
+        </div>
+        <div class="form-group">
+            <label for="inputPassword1">Password</label>
+            <input type="password" class="form-control" id="inputPassword1" placeholder="Password" name="password">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 {% endblock %}

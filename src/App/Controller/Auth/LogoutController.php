@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Auth;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Service\AuthService;
