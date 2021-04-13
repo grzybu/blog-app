@@ -1,7 +1,9 @@
-{% extends "base.html" %}
+{% extends "base.twig" %}
+{% block title %}{{ post.getTitle() }}{% endblock %}
+
 {% block content %}
 <h3>{{ post.getTitle() }}</h3>
 <p>
-    {{ post.getContent() }}
+    {{ post.getBody() }}
 </p>
 {% endblock %}

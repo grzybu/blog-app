@@ -1,11 +1,49 @@
-{% extends "base.html" %}
-{% block title %}
-{% endblock %}
+{% extends "base.twig" %}
+{% block title %}Homepage{% endblock %}
 {% block content %}
-{% for post in posts %}
-<h3>{{ post.getTitle() }}</h3>
-<p>
-    {{ post.getSummary() }}
-</p>
-{% endfor %}
+
+    <div class="row">
+        <div class="col-md">
+            {% for post in posts %}
+                <article class="blog-post">
+                    <h2 class="blog-post-title"><a href="/post/{{ post.getSlug() }}"> {{ post.getTitle() }}</a></h2>
+                    <p>
+                        {{ post.getSummary() }}
+                    </p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+    {% if totalPages > 1 %}
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item  {% if currentPage == 1 %} disabled {% endif %}">
+                    <a class="page-link" {% if currentPage > 1 %} href="/{{ currentPage - 1 }}" {% endif %} aria-label="Previous" tabindex="-1">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+
+                {% for i in 1..totalPages %}
+                    <li class="{% if currentPage == loop.index %}active {% endif %} page-item"><a class="page-link"
+                                                                                                  href="/{{ loop.index }}">{{ loop.index }}</a>
+                    </li>
+                {% endfor %}
+
+                <li class="page-item {% if currentPage == totalPages %}disabled {% endif %}">
+                    <a class="page-link" {% if currentPage < totalPages %}
+                        href="/{{ currentPage + 1 }}"
+                    {% endif %} aria-label="Next" tabindex="+1">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    {% endif %}
+    </div>
+    </div>
+
 {% endblock %}
