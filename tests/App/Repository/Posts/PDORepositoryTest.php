@@ -1,37 +1,244 @@
 <?php
 
-namespace App\Repository\Posts;
+namespace App\Tests\Repository\Posts;
 
 use App\Model\Post;
+use App\Repository\Posts\PDORepository;
+use App\Utils\Clock;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\String\UnicodeString;
 
-class InMemoryRepositoryTest extends TestCase
+class PDORepositoryTest extends TestCase
 {
 
-    protected array $posts;
+    /** @var MockObject|\PDO */
+    protected MockObject $pdo;
+    /** @var MockObject|SluggerInterface */
+    protected MockObject $slugger;
+    /** @var \PDOStatement|MockObject */
+    protected $stmt;
+
 
     public function setUp(): void
     {
-        $this->posts =  [
-            1 => new \App\Model\Post('Title 1', 'Summary of post 1', 'Post 1 content'),
-            2 => new \App\Model\Post('Title 2', 'Summary of post 2', 'Post 2 content'),
-        ];
+        $this->pdo = $this->getMockBuilder(\PDO::class)->disableOriginalConstructor()->getMock();
+        $this->slugger = $this->getMockBuilder(SluggerInterface::class)->disableOriginalConstructor()->getMock();
+        $this->stmt = $this->getMockBuilder(\PDOStatement::class)->disableOriginalConstructor()->getMock();
+        Clock::freeze();
+    }
+
+    public function tearDown(): void
+    {
+        Clock::release();
     }
 
     public function testGetPosts(): void
     {
-        $repository = new InMemoryRepository($this->posts);
-        $this->assertIsArray($repository->getAll());
-        $this->assertEquals(count($this->posts), count($repository->getAll()));
+        $repository = new PDORepository($this->pdo, $this->slugger);
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt->expects($this->any())
+            ->method('fetchAll')
+            ->willReturn(
+                [
+                    [
+                        'id' => 1,
+                        'title' => 'post title',
+                        'body' => 'body',
+                        'summary' => 'summary',
+                        'user_id' => 1,
+                        'created_at' => Clock::now()->format('Y-m-d H:i:s'),
+                        'update_at' => Clock::now()->format('Y-m-d H:i:s'),
+                    ],
+                ]
+            );
+
+        $this->assertIsArray($repository->getAll(1, 1));
+        $this->assertEquals(1, count($repository->getAll()));
         $this->assertInstanceOf(Post::class, current($repository->getAll()));
     }
 
+
+    public function testGetPostsWithLimitOnly(): void
+    {
+        $repository = new PDORepository($this->pdo, $this->slugger);
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+
+        $limit = 20;
+        $this->stmt->expects($this->any())
+            ->method('fetchAll')
+            ->willReturn(
+                array_fill(0, $limit, [
+                    'id' => round(0, 200),
+                    'title' => 'post title',
+                    'body' => 'body',
+                    'summary' => 'summary',
+                    'user_id' => 1,
+                    'created_at' => Clock::now()->format('Y-m-d H:i:s'),
+                    'update_at' => Clock::now()->format('Y-m-d H:i:s'),
+                ]),
+            );
+
+        $this->assertIsArray($repository->getAll($limit));
+        $this->assertEquals($limit, count($repository->getAll()));
+        $this->assertInstanceOf(Post::class, current($repository->getAll()));
+    }
+
+
+    /**
+     * @incomplete
+     */
     public function testGetPost(): void
     {
-        $post = new \App\Model\Post('Title 1', 'Summary of post 1', 'Post 1 content');
-        $repository = new InMemoryRepository([ 1 => $post ]);
+        $repository = new PDORepository($this->pdo, $this->slugger);
 
-        $this->assertEquals($post, $repository->getPost(1));
-        $this->assertNull($repository->getPost(2));
+        $data = [
+            'id' => 1,
+            'title' => 'post title',
+            'body' => 'body',
+            'summary' => 'summary',
+            'user_id' => 1,
+            'created_at' => Clock::now()->format('Y-m-d H:i:s'),
+            'update_at' => Clock::now()->format('Y-m-d H:i:s'),
+        ];
+
+
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt->expects($this->any())
+            ->method('fetch')
+            ->withConsecutive()
+            ->willReturnOnConsecutiveCalls($data, null);
+
+        $post = (new Post())->fromArray($data);
+
+        $this->assertEquals($post, $repository->get(1));
+        $this->assertNull($repository->get(2));
+    }
+
+    public function testGetBySlug(): void
+    {
+        $slug = 'post-slug';
+        $repository = new PDORepository($this->pdo, $this->slugger);
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $data = [
+            'id' => 1,
+            'title' => 'post title',
+            'body' => 'body',
+            'summary' => 'summary',
+            'slug' => $slug,
+            'user_id' => 1,
+            'created_at' => Clock::now()->format('Y-m-d H:i:s'),
+            'update_at' => Clock::now()->format('Y-m-d H:i:s'),
+        ];
+
+        $this->stmt->expects($this->any())
+            ->method('fetch')
+            ->withConsecutive()
+            ->willReturnOnConsecutiveCalls($data, null);
+
+
+        $result = $repository->getBySlug($slug);
+        $this->assertInstanceOf(Post::class, $result);
+        $this->assertEquals($slug, $result->getSlug());
+        $this->assertNull($repository->getBySlug('slug-2'));
+    }
+
+    public function testSaveExistingPost(): void
+    {
+        $newPostTitle = 'post title new';
+
+        $data = [
+            'id' => 1,
+            'title' => $newPostTitle,
+            'body' => 'body',
+            'summary' => 'summary',
+            'slug' => 'post-slug',
+            'user_id' => 1,
+            'created_at' => '2020-01-01 00:00:01',
+            'update_at' => '2020-01-02 00:00:02',
+        ];
+        $post = (new Post())->fromArray($data);
+
+        $repository = new PDORepository($this->pdo, $this->slugger);
+
+        $this->slugger->expects($this->once())
+            ->method('slug')
+            ->with($newPostTitle)
+            ->willReturn(new UnicodeString('post-title-new'));
+
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+
+        $return = $repository->save($post);
+        $this->assertInstanceOf(Post::class, $return);
+        $this->assertEquals('post-title-new', $return->getSlug());
+        $this->assertEquals(Clock::now(), $return->getUpdatedAt());
+    }
+
+    public function testSaveNewPost(): void
+    {
+        $postTitle = 'post title new';
+
+        $data = [
+            'title' => $postTitle,
+            'body' => 'body',
+            'summary' => 'summary',
+            'user_id' => 1,
+        ];
+
+        $post = (new Post())->fromArray($data);
+
+        $repository = new PDORepository($this->pdo, $this->slugger);
+
+        $this->slugger->expects($this->once())
+            ->method('slug')
+            ->with($postTitle)
+            ->willReturn(new UnicodeString('post-title-new'));
+
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->pdo->expects($this->once())
+            ->method('lastInsertId')
+            ->willReturn(1);
+
+
+        $return = $repository->save($post);
+        $this->assertInstanceOf(Post::class, $return);
+        $this->assertEquals('post-title-new', $return->getSlug());
+        $this->assertEquals(Clock::now(), $return->getUpdatedAt());
+        $this->assertEquals(Clock::now(), $return->getCreatedAt());
+        $this->assertEquals(1, $return->getId());
+    }
+
+    public function testGetTotal(): void
+    {
+
+        $repository = new PDORepository($this->pdo, $this->slugger);
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt->expects($this->once())
+            ->method('fetchColumn')
+            ->willReturn(1);
+
+        $this->assertEquals(1, $repository->getTotal());
     }
 }
