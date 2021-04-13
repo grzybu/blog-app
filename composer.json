@@ -9,20 +9,27 @@
         }
     ],
     "require": {
-        "php": "^7.4",
-        "filp/whoops": "^2.12"
+        "php": "^8.0",
+        "filp/whoops": "^2.12",
+        "nikic/fast-route": "~0.5.0",
+        "php-di/php-di": "^6.0",
+        "symfony/http-foundation": "^5.2",
+        "symfony/string": "^5.2",
+        "symfony/translation-contracts": "^2.3",
+        "twig/twig": "^3.0",
+        "vlucas/phpdotenv": "^5.3"
     },
     "config": {
         "sort-packages": true
     },
     "autoload": {
         "psr-4": {
-            "Blog\\": "src/"
+            "App\\": "src/App"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Blog\\Tests\\": "tests/"
+            "App\\Tests\\": "tests/App"
         }
     },
     "require-dev": {
@@ -40,6 +47,7 @@
         ],
         "test": "phpunit",
         "test-coverage": "phpunit --colors=always --coverage-html test-reports/coverage",
+        "test-show-coverage": "phpunit --colors=always --coverage-text",
         "cs-check": "phpcs -n",
         "md-check": "phpmd \"src\" xml phpmd.xml --suffixes php",
         "phpstan-check":  "phpstan analyse -c phpstan.neon"
