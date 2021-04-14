@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Model\Post;
 use App\Repository\Posts\PostRepository;
 use App\Service\AuthService;
+use App\Tests\Traits\GetEnvironmentTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -14,18 +15,16 @@ use Twig\Environment;
 
 class NewPostControllerTest extends TestCase
 {
-    private MockObject $repository;
-    /**
-     * @var MockObject|Environment
-     */
-    private MockObject $environment;
+    use GetEnvironmentTrait;
 
+    private MockObject $repository;
+    private Environment $environment;
     private MockObject $authService;
 
     public function setUp(): void
     {
         $this->repository = $this->getMockBuilder(PostRepository::class)->disableOriginalConstructor()->getMock();
-        $this->environment = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $this->environment = $this->getEnvironment();
         $this->authService = $this->getMockBuilder(AuthService::class)->disableOriginalConstructor()->getMock();
     }
 
@@ -47,14 +46,9 @@ class NewPostControllerTest extends TestCase
 
         $request = new Request();
 
-        $this->environment->expects($this->once())
-            ->method('render')
-            ->withAnyParameters()
-            ->willReturn("<h3>New post form</h3><form></form>");
-
         $response = $controller($request);
         $this->assertInstanceOf(Response::class, $response);
-        $this->assertStringContainsString("<form>", $response->getContent());
+        $this->assertStringContainsString('<form method="post">', $response->getContent());
     }
 
     public function testAddNewPost(): void
@@ -70,8 +64,8 @@ class NewPostControllerTest extends TestCase
 
         $id = 1;
         $data = [
-            'title'   => 'title',
-            'body'    => 'body',
+            'title' => 'title',
+            'body' => 'body',
             'summary' => 'summary',
         ];
 
@@ -103,8 +97,8 @@ class NewPostControllerTest extends TestCase
             ->willReturn($userId);
 
         $data = [
-            'title'   => 'title',
-            'body'    => 'body',
+            'title' => 'title',
+            'body' => 'body',
             'summary' => 'summary',
         ];
 
@@ -116,11 +110,6 @@ class NewPostControllerTest extends TestCase
         $request = new Request();
         $request->setMethod('POST');
         $request->request->add($data);
-
-        $this->environment->expects($this->once())
-            ->method('render')
-            ->withAnyParameters()
-            ->willReturn("<p>DB Error</p><form></form>");
 
         $response = $controller($request);
         $this->assertInstanceOf(Response::class, $response);

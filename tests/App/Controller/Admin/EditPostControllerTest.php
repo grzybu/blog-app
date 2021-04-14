@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Tests\Controller\Admin;
 
+use App\Controller\Admin\EditPostController;
 use App\Model\Post;
 use App\Repository\Posts\PostRepository;
 use App\Service\AuthService;
@@ -10,22 +11,21 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Environment;
+use App\Tests\Traits\GetEnvironmentTrait;
 
 class EditPostControllerTest extends TestCase
 {
+    use GetEnvironmentTrait;
+
     private MockObject $repository;
-    /**
-     * @var MockObject|Environment
-     */
-    private MockObject $environment;
 
     private MockObject $authService;
+    private \Twig\Environment $environment;
 
     public function setUp(): void
     {
         $this->repository = $this->getMockBuilder(PostRepository::class)->disableOriginalConstructor()->getMock();
-        $this->environment = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $this->environment = $this->getEnvironment();
         $this->authService = $this->getMockBuilder(AuthService::class)->disableOriginalConstructor()->getMock();
     }
 
@@ -47,18 +47,13 @@ class EditPostControllerTest extends TestCase
 
         $request = new Request(['id' => 1]);
 
-        $this->environment->expects($this->once())
-            ->method('render')
-            ->withAnyParameters()
-            ->willReturn("<h3>Edit post form</h3><form></form>");
-
         $this->repository->expects($this->once())
             ->method('get')
             ->willReturn(new Post());
 
         $response = $controller($request);
         $this->assertInstanceOf(Response::class, $response);
-        $this->assertStringContainsString("<form>", $response->getContent());
+        $this->assertStringContainsString('<form method="post">', $response->getContent());
     }
 
     public function testPostNotFound(): void
@@ -137,10 +132,6 @@ class EditPostControllerTest extends TestCase
         $request->setMethod('POST');
         $request->request->add($data);
 
-        $this->environment->expects($this->once())
-            ->method('render')
-            ->withAnyParameters()
-            ->willReturn("<p>DB Error</p><form></form>");
         $this->repository->expects($this->once())
             ->method('save')
             ->withAnyParameters()

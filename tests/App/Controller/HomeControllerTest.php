@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Controller\HomeController;
 use App\Repository\Posts\PostRepository;
+use App\Tests\Traits\GetEnvironmentTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,16 +13,15 @@ use Twig\Environment;
 
 class HomeControllerTest extends TestCase
 {
+    use GetEnvironmentTrait;
+
     private MockObject $repository;
-    /**
-     * @var MockObject|Environment
-     */
-    private $environment;
+    private Environment $environment;
 
     public function setUp(): void
     {
         $this->repository = $this->getMockBuilder(PostRepository::class)->disableOriginalConstructor()->getMock();
-        $this->environment = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $this->environment = $this->getEnvironment();
     }
 
     public function testController(): void

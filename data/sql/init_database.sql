@@ -2,12 +2,14 @@ CREATE DATABASE IF NOT EXISTS `blog`;
 
 USE `blog`;
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
                          `id` int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
                          `username` varchar(255) NOT NULL,
                           `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `posts`;
 CREATE TABLE `posts` (
                          `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                          `user_id` int(11) DEFAULT NULL,
@@ -15,8 +17,8 @@ CREATE TABLE `posts` (
                          `summary` varchar(255) NOT NULL,
                          `slug` varchar(255) NOT NULL UNIQUE,
                          `body` text NOT NULL,
-                         `created_at` timestamp DEFAULT NULL,
-                         `updated_at` timestamp DEFAULT NULL,
+                         `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+                         `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ,
                          FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

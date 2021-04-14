@@ -1,7 +1,6 @@
 <?php
 
 use App\Lib\DbConnection;
-use function DI\create;
 
 return [
     'DB'                                         => DI\autowire(\PDO::class)->constructor($_ENV['DATABASE_DNS'], $_ENV['DATABASE_USER'], $_ENV['DATABASE_PASSWORD']),
@@ -24,6 +23,7 @@ return [
 
         $environment->addGlobal('userAuthenticated', $authService->isAuthenticated());
         $environment->addGlobal('userIdentity', $authService->getIdentity());
+        $environment->addGlobal('tinyMceKey', $_ENV['TINYMCE_KEY']);
 
         return $environment;
     },

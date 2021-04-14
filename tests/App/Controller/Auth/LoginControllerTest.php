@@ -3,6 +3,7 @@
 namespace App\Controller\Auth;
 
 use App\Service\AuthService;
+use App\Tests\Traits\GetEnvironmentTrait;
 use http\Env\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -12,16 +13,15 @@ use Twig\Environment;
 
 class LoginControllerTest extends TestCase
 {
+    use GetEnvironmentTrait;
+
     private MockObject $authService;
-    /**
-     * @var MockObject|Environment
-     */
-    private $environment;
+    private Environment $environment;
 
     public function setUp(): void
     {
         $this->authService = $this->getMockBuilder(AuthService::class)->disableOriginalConstructor()->getMock();
-        $this->environment = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $this->environment = $this->getEnvironment();
     }
 
     public function testIsAuthenticated(): void
@@ -74,29 +74,18 @@ class LoginControllerTest extends TestCase
         $request->setMethod('post');
         $request->request->add(['username' => $userName, 'password' => $password]);
 
-        $this->environment->expects($this->once())
-            ->method('render')
-            ->withAnyParameters()
-            ->willReturn("<p>Error</p><form method='post'></form>");
-
-
-
         $response = $controller($request);
         $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
-        $this->assertStringContainsString("<p>Error</p><form method='post'></form>", $response->getContent());
+        $this->assertStringContainsString("Login failed", $response->getContent());
     }
 
     public function testGetRequest(): void
     {
         $controller = new LoginController($this->authService, $this->environment);
-        $this->environment->expects($this->once())
-            ->method('render')
-            ->withAnyParameters()
-            ->willReturn("<form method='post'></form>");
         $newUrl = '/new-url';
         $request = new Request(['returnTo' => base64_encode($newUrl)]);
         $response = $controller($request);
         $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
-        $this->assertStringContainsString("<form method='post'></form>", $response->getContent());
+        $this->assertStringContainsString('<form method="post">', $response->getContent());
     }
 }
