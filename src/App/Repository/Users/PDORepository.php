@@ -27,11 +27,12 @@ class PDORepository implements UsersRepository
         return (new User())->fromArray($result);
     }
 
-    public function addUser(string $userName, string $passwordHash): bool
+    public function addUser(string $userName, string $passwordHash, string $displaName): bool
     {
-        $query = $this->connection->prepare('INSERT INTO `users` (`username`, `password` ) VALUES (:username, :password)');
+        $query = $this->connection->prepare('INSERT INTO `users` (`username`, `password`, `display_name` ) VALUES (:username, :password, :display_name)');
         $query->bindValue('username', $userName);
         $query->bindValue('password', $passwordHash);
+        $query->bindValue('display_name', $displaName);
         $query->execute();
         return $this->connection->lastInsertId() > 0;
     }

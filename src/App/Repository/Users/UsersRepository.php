@@ -7,5 +7,5 @@ use App\Model\User;
 interface UsersRepository
 {
     public function getUserByUsername(string $login): ?User;
-    public function addUser(string $userName, string $passwordHash): bool;
+    public function addUser(string $userName, string $passwordHash, string $displayName): bool;
 }

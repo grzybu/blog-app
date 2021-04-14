@@ -7,7 +7,18 @@ class User implements Model
     private int $id;
     private string $username;
     private string $password;
+    private string $displayName;
 
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(string $displayName): self
+    {
+        $this->displayName = $displayName;
+        return $this;
+    }
 
     public function setId(int $id): self
     {
@@ -48,6 +59,7 @@ class User implements Model
             'id'       => $this->getId(),
             'username' => $this->getUsername(),
             'password' => $this->getPassword(),
+            'display_name' => $this->getDisplayName(),
         ];
     }
 
@@ -56,6 +68,7 @@ class User implements Model
         return (new User())
             ->setId($data['id'] ?? null)
             ->setUserName($data['username'] ?? null)
-            ->setPassword($data['password'] ?? null);
+            ->setPassword($data['password'] ?? null)
+            ->setDisplayName($data['display_name'] ?? null);
     }
 }

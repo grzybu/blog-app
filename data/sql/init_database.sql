@@ -6,7 +6,8 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
                          `id` int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
                          `username` varchar(255) NOT NULL,
-                          `password` varchar(255) NOT NULL
+                          `password` varchar(255) NOT NULL,
+                          `display_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `posts`;
@@ -22,8 +23,8 @@ CREATE TABLE `posts` (
                          FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO blog.users (username,password) VALUES
-('admin','$2y$12$KwxRQ6PRwfH68dWojvNEHusbjQudDswBelFwwEIuVo3JHyxh.F4Z6');
+INSERT INTO blog.users (username,password, display_name) VALUES
+('admin','$2y$12$KwxRQ6PRwfH68dWojvNEHusbjQudDswBelFwwEIuVo3JHyxh.F4Z6', 'John Doe');
 
 
 INSERT INTO blog.posts (user_id,title,summary,slug,body,created_at,updated_at) VALUES

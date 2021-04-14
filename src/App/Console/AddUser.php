@@ -13,14 +13,14 @@ class AddUser
         $this->repository = $repository;
     }
 
-    public function __invoke(string $username, string $password): void
+    public function __invoke(string $username, string $password, string $displayName): void
     {
         $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
         if ($this->repository->getUserByUsername($username)) {
             throw new \InvalidArgumentException("User ${username} already exists");
         }
-        $this->repository->addUser($username, $passwordHash);
+        $this->repository->addUser($username, $passwordHash, $displayName);
 
         print 'User added';
     }

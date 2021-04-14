@@ -3,7 +3,6 @@
 call_user_func(
     function ($argv) {
 
-
         /** @var \DI\Container $container */
         $container = require  'config/bootstrap.php';
         $class = $argv[1] ?? null;

@@ -3,6 +3,7 @@
 namespace App\Repository\Posts;
 
 use App\Model\Post;
+use App\Model\User;
 use App\Utils\Clock;
 use PDO;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -56,18 +57,26 @@ class PDORepository implements PostRepository
 
     public function getBySlug(string $slug): ?Post
     {
-        $query = $this->connection->prepare('SELECT * FROM `posts` WHERE `slug` =:slug');
+        $sql = 'SELECT `p`.*, `u`.`id` AS `userId`, `u`.`display_name` AS `userDisplayName`  FROM `posts` AS `p` '
+            . ' LEFT JOIN `users` as `u` ON `p`.`user_id` = `u`.`id` '
+            . ' WHERE `slug` =:slug';
+        $query = $this->connection->prepare($sql);
         $query->bindParam('slug', $slug, PDO::PARAM_STR);
         $query->execute();
 
         $result = $query->fetch(PDO::FETCH_ASSOC);
 
-
         if (!$result) {
             return null;
         }
 
-        return (new Post())->fromArray($result);
+        $post = (new Post())->fromArray($result);
+        if ($post->getUserId()) {
+            $user = (new User())->setDisplayName($result['userDisplayName'])->setId($result['userId']);
+            $post->setUser($user);
+        }
+
+        return $post;
     }
 
     public function save(Post $post): ?Post

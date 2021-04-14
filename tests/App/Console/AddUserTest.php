@@ -20,19 +20,20 @@ class AddUserTest extends TestCase
     public function testAddUser()
     {
         $command = new AddUser($this->repository);
-        $this->expectOutputString('User added', $command('user', 'passwrord'));
+        $this->expectOutputString('User added', $command('user', 'passwrord', 'john'));
     }
 
     public function testUserExists()
     {
         $userName = 'user1';
         $password = 'pass';
+        $displayName = 'display_name';
         $command = new AddUser($this->repository);
         $this->repository->expects($this->once())
             ->method('getUserByUsername')
-            ->willReturn((new User())->setUsername($userName)->setPassword($password)->setId(1));
+            ->willReturn((new User())->setUsername($userName)->setPassword($password)->setDisplayName($displayName)->setId(1));
 
         $this->expectExceptionMessage("User ${userName} already exists");
-        $command($userName, $password);
+        $command($userName, $password, $displayName);
     }
 }

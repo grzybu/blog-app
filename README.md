@@ -19,9 +19,34 @@ Then point your browser to
 http://localhost:8080
 ```
 
+Alternatively you can run it without Docker using e.g. php build in server.
+It requires creating `.env` file (you can check `.env.dist`). Run `composer install` and
+set your servers document root to `public` directory. Example:
+```
+ php -S localhost:8080 public/index.php
+```
+
+### Users
+
+One admin users has already been created. Here are the credentials:
+
+```
+login: admin
+password: password
+```
+
+You can add more using cli command 
+```
+./bin/add_user.sh janek brzechwa JanB
+```
+Or without Docker
+```
+php console.php AddUser username password displayName
+```
+
 ### How to restart it?
 
-If you have previously installed it run ``restart_server.sh``
+If you have previously installed it, run ``restart_server.sh``
 
 ### How to destroy it?
 ```

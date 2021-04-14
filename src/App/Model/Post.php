@@ -17,7 +17,18 @@ class Post implements Model
     protected ?\DateTimeImmutable $createdAt = null;
 
     protected ?int $userId = null;
+    protected ?User $user = null;
 
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
 
     public function getCreatedAt(): \DateTimeImmutable
     {

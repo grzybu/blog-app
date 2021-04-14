@@ -3,6 +3,7 @@
 namespace App\Tests\Repository\Posts;
 
 use App\Model\Post;
+use App\Model\User;
 use App\Repository\Posts\PDORepository;
 use App\Utils\Clock;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -142,6 +143,8 @@ class PDORepositoryTest extends TestCase
             'user_id' => 1,
             'created_at' => Clock::now()->format('Y-m-d H:i:s'),
             'update_at' => Clock::now()->format('Y-m-d H:i:s'),
+            'userId' => 1,
+            'userDisplayName' => 'John Doe'
         ];
 
         $this->stmt->expects($this->any())
@@ -153,6 +156,7 @@ class PDORepositoryTest extends TestCase
         $result = $repository->getBySlug($slug);
         $this->assertInstanceOf(Post::class, $result);
         $this->assertEquals($slug, $result->getSlug());
+        $this->assertInstanceOf(User::class, $result->getUser());
         $this->assertNull($repository->getBySlug('slug-2'));
     }
 

@@ -33,6 +33,7 @@ class PDORepositoryTest extends TestCase
             'id'       => 1,
             'username' => 'login',
             'password' => 'password',
+            'display_name' => 'John Doe'
         ];
 
 
@@ -57,6 +58,7 @@ class PDORepositoryTest extends TestCase
     {
         $login = 'login';
         $password = 'password';
+        $displayName = 'john';
 
         $repository = new PDORepository($this->pdo);
 
@@ -64,6 +66,6 @@ class PDORepositoryTest extends TestCase
             ->method('prepare')
             ->willReturn($this->stmt);
 
-        $this->assertIsBool($repository->addUser($login, $password));
+        $this->assertIsBool($repository->addUser($login, $password, $displayName));
     }
 }

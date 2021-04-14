@@ -3,6 +3,9 @@
 
 {% block content %}
 <h3>{{ post.getTitle() }}</h3>
+{% if post.getUser() %}
+    <h4>Author: {{ post.getUser().getDisplayName() }}</h4>
+    {% endif %}
 <p>
     {{ post.getBody() | striptags('<p>,<strong>,<em>') | raw}}
 </p>
